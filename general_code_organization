@@ -1,0 +1,38 @@
+General Code Organization:
+
+%% initializaion
+
+    Define physical parameters and simulation parameters
+    Initialize grid (use ndgrid)
+    Initialize primitive variables
+    Initialize conservative variables
+    Preallocate other arrays with zeros (E, F, Ubar, etc.)
+    Compute initial physical parameters (speed of sound, viscosity, etc)
+
+%% time loop
+
+    Make sure conservative and primitive variables are up to date
+    Optional: Compute delta_t based on stability requirement and most recent solution fields
+    Update t
+    Predictor Step
+        Update all necessary physical parameters
+        Compute partial derivatives of primitive variables needed to assemble flux array E
+          Be sure to maintain overall accuracy by properly biasing x- and y- derivatives! (See lecture notes)
+        Update E
+        Compute partial derivatives of primitive variables needed to assemble flux vector F
+          Be sure to maintain overall accuracy by properly biasing x- and y- derivatives!
+        Update F
+        Compute Ubar (using forward differences for derivatives of E and F)
+        Update primitive variables
+        Enforce BCs on primitive variables
+        Update Ubar
+    Corrector Step
+        Follow predictor steps 1-4, but using values from U, 
+          and with the proper biasing needed to maintain overall accuracy in the corrector step!
+        Compute U (using backward differences for derivatives of Ebar and Fbar)
+        Update primitive variables
+        Enforce BCs on primitive variables
+        Update U
+    Data output/visualization
+
+%% time loop
