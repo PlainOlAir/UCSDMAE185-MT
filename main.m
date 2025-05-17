@@ -1,0 +1,5 @@
+clear
+
+addpath('lib\')
+
+setup
