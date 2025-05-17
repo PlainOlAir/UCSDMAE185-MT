@@ -1,4 +1,4 @@
-function firstdx = ddx_bwd(f, dx, periodicBC, dir)
+function firstdx = ddx_bwd(f, dx, dir, periodicBC)
 %% Description
 % Calculates first derivative with first-order backwards difference 
 % in the x direction
@@ -6,8 +6,8 @@ function firstdx = ddx_bwd(f, dx, periodicBC, dir)
 % INPUTS
 % f = data matrix with the size of Nx x Ny
 % dx = x-direction spacing of the data points
-% periodicBC = true/false to set periodic boundaries (OPTIONAL)
 % dir = direction (1 = x, 2 = y) (OPTIONAL)
+% periodicBC = true/false to set periodic boundaries (OPTIONAL)
 
 % OUTPUTS
 % firstdx = backwards FD first derivative of input matrix f
@@ -19,7 +19,7 @@ switch nargin
         dir = 1;
         periodicBC = false;
     case 3
-        dir = 1;
+        periodicBC = false;
 end
 
 if dir == 2 % if going in y direction, transpose data matrix

@@ -1,4 +1,4 @@
-function scnddx = d2dx2(f, dx, periodicBC, dir)
+function scnddx = d2dx2(f, dx, dir, periodicBC)
 %% Description
 % Calculates second derivative with second-order central difference
 % in the x direction
@@ -6,8 +6,8 @@ function scnddx = d2dx2(f, dx, periodicBC, dir)
 % INPUTS
 % f = data matrix with the size of Nx x Ny
 % dx = x-direction spacing of the data points
-% periodicBC = true/false to set periodic boundaries (OPTIONAL)
 % dir = direction (1 = x, 2 = y) (OPTIONAL)
+% periodicBC = true/false to set periodic boundaries (OPTIONAL)
 
 % OUTPUTS
 % scnddy = central FD second order derivative of input matrix f
@@ -19,7 +19,7 @@ switch nargin
         dir = 1;
         periodicBC = false;
     case 3
-        dir = 1;
+        periodicBC = false;
 end
 
 if dir == 2 % if going in y direction, transpose data matrix
