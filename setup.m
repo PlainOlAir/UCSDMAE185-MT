@@ -6,7 +6,7 @@ R = 287;        % Gas constant (J/(kg-K))
 cp = 1005;      % Isobaric specific heat capacity (J/(kg-K))
 cv = 718;       % Volumetric specific heat capacity (J/(kg-K))
 gamma = 1.4;    % Ratio of specific heats
-u0 = 1.735e-5;  % Dynamic viscosity (N-s/m^2)
+mu0 = 1.735e-5;  % Dynamic viscosity (N-s/m^2)
 S1 = 110.4;     % Sutherland's temperature (K)
 Pr = 0.71;      % Prandtl number 
 
@@ -58,4 +58,4 @@ p(:, end) = p0;
 T(:, end) = T0;
 
 %% Preallocation
-[U, Ubar, Upred] = deal(zeros(nx,ny,step_total));
+[U, Ubar, Upred] = deal(zeros(nx,ny), step_total);
