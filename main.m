@@ -26,7 +26,7 @@ for step = 1:step_total
     mu = sutherland(T, mu0, T0, S1);
     k = (cp/Pr)*mu;
     % compute derivatives, update E, F
-    [E, F] = flux(U,dx,dy,FD_method_pred,R,cv,mu,k);
+    [E, F] = flux(U(:,:,step),dx,dy,FD_method_pred,R,cv,mu,k);
     % compute U_bar using U, E, F
     U_bar = U(:,:,step) - dt.*(E + F);
     % compute primitive var's from U_bar
@@ -42,13 +42,13 @@ for step = 1:step_total
     % compute derivatives, update E, F
     [E, F] = flux(U_bar,dx,dy,FD_method_corr, R, cv, mu, k);
     % compute U from primitive vars
-    U_new = (0.5).*(U + Ubar - dt.*(E + F));
+    U(:,:,step+1) = (0.5).*(U(:,:,step) + Ubar - dt.*(E + F));
     % compute primitive vars from U
-    [rho, u, v, T, p, e, Et] = cons2prim(U, R, cv);
+    [rho, u, v, T, p, e, Et] = cons2prim(U(:,:,step), R, cv);
     % enforce BC's on p, u, v, T (update rho, e,...)
     [p, u, v, T, rho, e, Et] = bc_enforcer(p,u,v,T);
     % compute U from primitive vars
-    U = prim2cons(rho,u,v,T,cv);
+    U(:,:,step+1) = prim2cons(rho,u,v,T,cv);
 end
 %% --- Animator --- TODO: verify functioning
 figure;

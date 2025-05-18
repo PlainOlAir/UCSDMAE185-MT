@@ -21,12 +21,7 @@ dx = L / nx;
 dy = H / ny;
 
 [x, y] = ndgrid(linspace(0, L, nx), linspace(0, H, ny));
-u = zeros(nx, ny);
-v = u;
-p = u;
-rho = u;
-T = u;
-e = u;
+[u,v,p,rho,T,e] = deal(zeros(nx, ny));
 
 a = sqrt(gamma * R * T0);
 uinf = a * M;
@@ -38,6 +33,7 @@ u(:, :) = uinf;
 v(:, :) = 0;
 p(:, :) = p0;
 T(:, :) = T0;
+rho(:,:) = rho0;
 
 %% Boundary Conditions
 % Bottom wall
@@ -58,4 +54,6 @@ p(:, end) = p0;
 T(:, end) = T0;
 
 %% Preallocation
-[U, Ubar, Upred] = deal(zeros(nx,ny), step_total);
+[U, Ubar, Upred] = deal(zeros(4,nx,ny,step_total));
+% set U(:,:,:,step 1) to BC's
+U(:,:,:,1) = prim2cons(rho,u,v,T,cv);
