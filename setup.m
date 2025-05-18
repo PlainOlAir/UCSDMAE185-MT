@@ -31,6 +31,8 @@ e = u;
 a = sqrt(gamma * R * T0);
 uinf = a * M;
 
+step_total = 1500;
+
 %% Initial Conditions
 u(:, :) = uinf;
 v(:, :) = 0;
@@ -55,4 +57,5 @@ v(:, end) = 0;
 p(:, end) = p0;
 T(:, end) = T0;
 
-
+%% Preallocation
+[U, Ubar, Upred] = deal(zeros(nx,ny,step_total));
