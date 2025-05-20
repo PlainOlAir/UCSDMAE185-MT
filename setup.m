@@ -39,7 +39,7 @@ v(:, :) = 0;
 p(:, :) = p0;
 T(:, :) = T0;
 
-[p, u, v, T, rho, e, Et] = bc_enforcer(p, u, v, T, cv, R, uinf, p0, T0);
+[rho, u, v, T, p, e, Et] = bc_enforcer(u, v, T, p, cv, R, uinf, p0, T0);
 
 % in general:
 % U = 4 x Nx x Ny x step array of conservative variables:
