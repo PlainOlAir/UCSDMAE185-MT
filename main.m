@@ -1,4 +1,6 @@
 clear
+close all
+clc
 
 addpath('lib\')
 
@@ -12,7 +14,12 @@ time = 0;
 for step = 1:step_total
     %% I/O, loop updates, delta_t_CFL, visualization
     a = sqrt(gamma*R*T);
+    % rho, u, v, e, p, T, convergence
+    convergence = p_previous - p;
+    output_vars(:, :, :, step) = permute(cat(3, rho, u, v, e, p, T, convergence), [3 1 2]);
+    p_previous = p;
     % compute delta_t CFL
+    time(step+1,1) = time(step,1) + dt;
     %% Alternator
     if mod(step, 2) == 1
         FD_method_pred = 'fwd';
@@ -49,35 +56,34 @@ for step = 1:step_total
     [p, u, v, T, rho, e, Et] = bc_enforcer(p, u, v, T, cv, R, uinf, p0, T0);
     % compute U from primitive vars
     U(:,:,:,step+1) = prim2cons(rho,u,v,T,cv);
-end
+ end
 %% --- Animator --- TODO: verify functioning
 figure;
 tile = tiledlayout(2, 4, 'TileSpacing', 'compact', 'Padding', 'compact');
-% Initialize handles
+% initialize handles
 axesArray = gobjects(1, 8);
 h = gobjects(1, 8);
+var_labels = {'$\rho$', '$u$', '$v$', '$e$', '$p$', '$T$', '$Convergence$'};
 titles = gobjects(1, 8);
-disp_data = cat(4, rho, u, v, e, p, T, convergence);
-% Initial plot for each variable
-for var = 1:8
+% initial plot for each variable
+for var = 1:7
     axesArray(var) = nexttile(tile, var);
-    h(var) = pcolor(axesArray(var), xx, yy, squeeze(disp_data(:,:,1,var)));
+    h(var) = pcolor(axesArray(var), xx, yy, squeeze(output_vars(var,:,:,1)));
     shading(axesArray(var), 'interp');
     axis(axesArray(var), 'equal', 'tight');
-    xlabel(axesArray(var), 'x');
-    ylabel(axesArray(var), 'y');
-    colorbar(axesArray(var));
+    xlabel(axesArray(var), '$x$', 'Interpreter','latex');
+    ylabel(axesArray(var), '$y$', 'Interpreter','latex');
+    % colorbar(axesArray(var));
     titles(var) = title(axesArray(var), ...
-        sprintf('$U_{%d}$ at $t=%.3f$ s', var, t(1)), ...
-        'Interpreter', 'latex');
+        sprintf('%s at $t=%.3f$ s \\(%d/%d\\)', var_labels{var}, time(1), i, step_total),'Interpreter','latex');
 end
 
 % Animate over time
-for i = 1:10:step_total
-    for var = 1:8
-        set(h(var), 'CData', squeeze(disp_data(:,:,1,var)));
+for i = 1:50:step_total
+    for var = 1:7
+        set(h(var), 'CData', squeeze(output_vars(var,:,:,1)));
         titles(var).String = ...
-            sprintf('$U_{%d}$ at $t=%.3f$ s\\ (%d/%d)$', var, t(i), i, step_total);
+            sprintf('%s at $t=%.11f$ s \\(%d/%d\\)', var_labels{var}, time(i), i, step_total);
     end
     drawnow;
 end
