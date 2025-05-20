@@ -1,17 +1,18 @@
 %% Air at Standard Conditions (sea-level)
-p0 = 101300;    % Pressure (Pa)
-T0 = 288.15;    % Temperature (K)
-rho0 = 1.225;   % Density (kg/m^3)
-R = 287;        % Gas constant (J/(kg-K))
-cp = 1005;      % Isobaric specific heat capacity (J/(kg-K))
-cv = 718;       % Volumetric specific heat capacity (J/(kg-K))
-gamma = 1.4;    % Ratio of specific heats
-mu0 = 1.735e-5;  % Dynamic viscosity (N-s/m^2)
-S1 = 110.4;     % Sutherland's temperature (K)
-Pr = 0.71;      % Prandtl number 
-M = 4;      % Mach Number
-a = sqrt(gamma * R * T0);
-uinf = a * M;
+p0 = 101300;                % Pressure (Pa)
+T0 = 288.15;                % Temperature (K)
+rho0 = 1.225;               % Density (kg/m^3)
+R = 287;                    % Gas constant (J/(kg-K))
+cp = 1005;                  % Isobaric specific heat capacity (J/(kg-K))
+cv = 718;                   % Volumetric specific heat capacity (J/(kg-K))
+gamma = 1.4;                % Ratio of specific heats
+mu0 = 1.735e-5;             % Dynamic viscosity (N-s/m^2)
+S1 = 110.4;                 % Sutherland's temperature (K)
+Pr = 0.71;                  % Prandtl number 
+M = 4;                      % Mach Number
+
+a0 = sqrt(gamma * R * T0);  % Speed of Sound
+uinf = a0 * M;              % Free-stream velocity
 
 %% Grid setup
 nx = 75;    % x Number of points
@@ -28,7 +29,7 @@ step_total = 1500;
 
 %% Preallocation
 [u,v,p,rho,T,e,U_bar] = deal(zeros(nx, ny));
-U = zeros(4,nx,ny,step_total);
+U = zeros(4,nx,ny);
 % output variables are rho, u, v, e, p, T, convergence
 output_vars = zeros(7, nx,ny,step_total);
 
@@ -37,38 +38,8 @@ u(:, :) = uinf;
 v(:, :) = 0;
 p(:, :) = p0;
 T(:, :) = T0;
-rho(:,:) = rho0;
 
-%% Boundary Conditions
-% Leading edge
-u(1,1) = 0;
-v(1,1) = 0;
-p(1,1) = p0;
-T(1,1) = T0;
-
-% Bottom wall
-u(:, 1) = 0;
-v(:, 1) = 0;
-T(:, 1) = T0;
-p(:, 1) = 2*(p(:,3)) - p(:,2);
-
-% Inlet
-u(1, :) = uinf;
-v(1, :) = 0;
-p(1, :) = p0;
-T(1, :) = T0;
-
-% Far field
-u(:, end) = uinf;
-v(:, end) = 0;
-p(:, end) = p0;
-T(:, end) = T0;
-
-% Outlet
-u(end,:) = 2*(u(end-2,:)) - u(end-1,:);
-v(end,:) = 2*(v(end-2,:)) - v(end-1,:);
-p(end,:) = 2*(p(end-2,:)) - p(end-1,:);
-T(end,:) = 2*(T(end-2,:)) - T(end-1,:);
+[p, u, v, T, rho, e, Et] = bc_enforcer(p, u, v, T, cv, R, uinf, p0, T0);
 
 % in general:
 % U = 4 x Nx x Ny x step array of conservative variables:
@@ -77,5 +48,5 @@ T(end,:) = 2*(T(end-2,:)) - T(end-1,:);
 %   3 - y-mass flux
 %   4 - total energy
 % set U(:,:,:,step 1) to BC's
-U(:,:,:,1) = prim2cons(rho,u,v,T,cv);
+U(:,:,:) = prim2cons(rho,u,v,T,cv);
 p_previous = p;

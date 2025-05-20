@@ -30,5 +30,4 @@ function [rho, u, v, T, p, e, Et] = cons2prim(U, R, cv)
 
     p = squeeze(rho .* R .* T); % pressure
 
-    
 end
