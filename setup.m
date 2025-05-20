@@ -13,6 +13,8 @@ M = 4;                      % Mach Number
 
 a0 = sqrt(gamma * R * T0);  % Speed of Sound
 uinf = a0 * M;              % Free-stream velocity
+Tinf = T0 * (1 + (gamma - 1)/2 * M^2);                     % Static temperature
+pinf = p0 * (1 + (gamma - 1)/2 * M^2)^(gamma / (gamma - 1)); % Static pressure
 
 %% Grid setup
 nx = 75;    % x Number of points
@@ -23,7 +25,7 @@ H = 8e-6;   % Height of computational domain (m)
 dx = L / nx;
 dy = H / ny;
 
-step_total = 500;
+step_total = 1500;
 
 [xx, yy] = ndgrid(linspace(0, L, nx), linspace(0, H, ny));
 
@@ -36,10 +38,10 @@ output_vars = zeros(7, nx,ny,step_total);
 %% Initial Conditions
 u(:, :) = uinf;
 v(:, :) = 0;
-p(:, :) = p0;
-T(:, :) = T0;
+p(:, :) = pinf;
+T(:, :) = Tinf;
 
-[rho, u, v, T, p, e, Et] = bc_enforcer(u, v, T, p, cv, R, uinf, p0, T0);
+[rho, u, v, T, p, e, Et] = bc_enforcer(u, v, T, p, cv, R, uinf, pinf, Tinf);
 
 % in general:
 % U = 4 x Nx x Ny x step array of conservative variables:

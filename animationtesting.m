@@ -33,7 +33,7 @@ for var = 1:7
         sprintf('%s at $t=%.4e$ s\n(%d/%d)', var_labels{var}, time(1), 1, step_total),'Interpreter','latex');
 end
 
-for i = 1:10:350
+for i = 1:50:step_total
     for var = 1:7
         if var == 7
             % Update convergence plot using refreshdata
