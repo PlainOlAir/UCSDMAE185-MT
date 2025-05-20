@@ -17,10 +17,10 @@ function mu = sutherland(T, mu0, T0, S1)
     switch nargin
         case 1
             mu0 = 1.735e-5; %N-s/m^2
-            T0 = 288; %K
+            T0 = 288.15; %K
             S1 = 110.4; %K
         case 2
-            T0 = 288; %K
+            T0 = 288.15; %K
             S1 = 110.4; %K
         case 3
             S1 = 110.4; %K
