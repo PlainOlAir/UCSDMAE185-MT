@@ -33,20 +33,14 @@ firstdx = zeros(nx, ny); %allocate memory to output data
 
 % calculate boundary conditions depending on boundary type
 if periodicBC %periodic boundary
-    for j = 1:ny % forward FD
-        firstdx(end,j) = (f(1,j) - f(end,j)) / dx;
-    end
+    firstdx(end,:) = (f(1,:) - f(end,:)) / dx;
 else % non-periodic boudnary
-    for j = 1:ny % backwards FD
-        firstdx(end, j) = (f(end,j) - f(end-1,j)) / dx;
-    end
+    firstdx(end, :) = (f(end,:) - f(end-1,:)) / dx;
 end
 
-for j = 1:ny %iterate through y points
-    for i = 1:nx-1 %iterate through x points
-        %forward FD
-        firstdx(i, j) = (f(i+1,j) - f(i,j)) / dx;
-    end
+for i = 1:nx-1 %iterate through x points
+    %forward FD
+    firstdx(i, :) = (f(i+1,:) - f(i,:)) / dx;
 end
 
 if dir == 2 % untranspose data matrix if transposed earlier

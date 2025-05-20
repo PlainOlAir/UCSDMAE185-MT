@@ -1,6 +1,6 @@
 function firstdx = ddx_central(f, dx, dir, periodicBC)
 %% Description
-% Calculates first derivative with second-order central difference 
+% Calculates first derivative with second-order central difference
 % in the x direction
 
 % INPUTS
@@ -34,22 +34,16 @@ firstdx = zeros(nx, ny); %allocate memory to output data
 
 % calculate boundary conditions depending on boundary type
 if periodicBC %periodic boundary
-    for j = 1:ny % forward FD
-        firstdx(1,j) = (f(2,j) - f(end,j)) / (2 * dx);
-        firstdx(end,j) = (f(1,j) - f(end-1,j)) / (2 * dx);
-    end
+    firstdx(1,:) = (f(2,:) - f(end,:)) / (2 * dx);
+    firstdx(end,:) = (f(1,:) - f(end-1,:)) / (2 * dx);
 else % non-periodic boudnary
-    for j = 1:ny % forward & backwards FD at boundaries
-        firstdx(1, j) = (-3 * f(1,j) + 4 * f(2,j) - f(3,j)) / (2 * dx);
-        firstdx(end, j) = (3 * f(end,j) - 4 * f(end-1,j) + f(end-2,j)) / (2 * dx);
-    end
+    firstdx(1, :) = (-3 * f(1,:) + 4 * f(2,:) - f(3,:)) / (2 * dx);
+    firstdx(end, :) = (3 * f(end,:) - 4 * f(end-1,:) + f(end-2,:)) / (2 * dx);
 end
 
-for j = 1:ny %iterate through y points
-    for i = 2:nx-1 %iterate through x points
-        %central FD
-        firstdx(i, j) = (f(i+1,j) - f(i-1,j)) / (2 * dx);
-    end
+for i = 2:nx-1 %iterate through x points
+    %central FD
+    firstdx(i, :) = (f(i+1,:) - f(i-1,:)) / (2 * dx);
 end
 
 if dir == 2 % untranspose data matrix if transposed earlier

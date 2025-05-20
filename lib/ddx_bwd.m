@@ -1,6 +1,6 @@
 function firstdx = ddx_bwd(f, dx, dir, periodicBC)
 %% Description
-% Calculates first derivative with first-order backwards difference 
+% Calculates first derivative with first-order backwards difference
 % in the x direction
 
 % INPUTS
@@ -33,20 +33,14 @@ firstdx = zeros(nx, ny); %allocate memory to output data
 
 % calculate boundary conditions depending on boundary type
 if periodicBC %periodic boundary
-    for j = 1:ny % backwards FD
-        firstdx(1, j) = (f(1, j) - f(end,j)) / dx;
-    end
+    firstdx(1, :) = (f(1, :) - f(end,:)) / dx;
 else % non-periodic boudnary
-    for j = 1:ny % forward FD
-        firstdx(1, j) = (f(2,j) - f(1,j)) / dx;
-    end
+    firstdx(1, :) = (f(2,:) - f(1,:)) / dx;
 end
 
-for j = 1:ny %iterate through y points
-    for i = 2:nx %iterate through x points
-        %backwards FD
-        firstdx(i, j) = (f(i,j) - f(i-1,j)) / dx;
-    end
+for i = 2:nx %iterate through x points
+    %backwards FD
+    firstdx(i, :) = (f(i,:) - f(i-1, :)) / dx;
 end
 
 if dir == 2 % untranspose data matrix if transposed earlier
