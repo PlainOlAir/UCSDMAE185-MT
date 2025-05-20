@@ -28,7 +28,7 @@ for step = 1:step_total
         if isempty(output_vars{k})
             output_vars{k} = new_vars{k};
         else
-            output_vars{k} = cat(3, output_vars{k}, new_vars{k});
+            output_vars{k}(:, :, step) = new_vars{k};
         end
     end
     output_vars{7} = convergence;
