@@ -28,6 +28,6 @@ function mu = sutherland(T, mu0, T0, S1)
 
 %% Calculate
     % Sutherland's law
-    mu = mu0 .* (T ./ T0) .^ (3/2) .* (T0 + S1) ./ (T + S1);
+    mu = mu0 .* ((T ./ T0) .^ (3/2)) .* ((T0 + S1) ./ (T + S1));
 
 end

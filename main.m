@@ -14,7 +14,9 @@ convergence(:,:,1) = 1;
 for step = 1:step_total
     % I/O, loop updates, delta_t_CFL, visualization
     a = sqrt(gamma*R*T);
-
+    if isreal(p) == 0
+        disp(step)
+    end
     % rho, u, v, e, p, T, convergence
     % convergence_temp{step} = p_previous - p;
     convergence(:,:,step+1) = max(p_previous - p,[],'all');
@@ -59,7 +61,7 @@ for step = 1:step_total
     [rhoBar, uBar, vBar, TBar, pBar, eBar, EtBar] = cons2prim(UBar, R, cv); 
 
     % enforce BC's on p, u,v, T (update rho, e,...)
-    [rhoBar, uBar, vBar, TBar, pBar, eBar, EtBar] = bc_enforcer(uBar, vBar, TBar, pBar, cv, R, uinf, p0, T0);
+    [rhoBar, uBar, vBar, TBar, pBar, eBar, EtBar] = bc_enforcer(uBar, vBar, TBar, pBar, cv, R, uinf, pinf, Tinf);
 
     UBar = prim2cons(rhoBar, uBar, vBar, TBar, cv);
 
@@ -87,7 +89,7 @@ for step = 1:step_total
     [rho, u, v, T, p, e, Et] = cons2prim(U, R, cv);
 
     % enforce BC's on p, u, v, T (update rho, e,...)
-    [rho, u, v, T, p, e, Et] = bc_enforcer(u, v, T, p, cv, R, uinf, p0, T0);
+    [rho, u, v, T, p, e, Et] = bc_enforcer(u, v, T, p, cv, R, uinf, pinf, Tinf);
 
     % compute U from primitive vars
     U = prim2cons(rho,u,v,T,cv);

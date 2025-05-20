@@ -1,27 +1,27 @@
-function [rho, u, v, T, p, e, Et] = bc_enforcer(u, v, T, p, cv, R, uinf, p0, T0)
+function [rho, u, v, T, p, e, Et] = bc_enforcer(u, v, T, p, cv, R, uinf, pinf, Tinf)
     % Leading edge
     u(1,1) = 0;
     v(1,1) = 0;
-    p(1,1) = p0;
-    T(1,1) = T0;
+    p(1,1) = pinf;
+    T(1,1) = Tinf;
 
     % Bottom wall
     u(:, 1) = 0;
     v(:, 1) = 0;
-    T(:, 1) = T0;
+    T(:, 1) = Tinf;
     p(:, 1) = 2*(p(:,3)) - p(:,2);
     
     % Inlet
     u(1, :) = uinf;
     v(1, :) = 0;
-    p(1, :) = p0;
-    T(1, :) = T0;
+    p(1, :) = pinf;
+    T(1, :) = Tinf;
     
     % Far field
     u(:, end) = uinf;
     v(:, end) = 0;
-    p(:, end) = p0;
-    T(:, end) = T0;
+    p(:, end) = pinf;
+    T(:, end) = Tinf;
     
     % Outlet
     u(end,:) = 2*(u(end-2,:)) - u(end-1,:);
