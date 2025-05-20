@@ -1,15 +1,15 @@
 function [rho, u, v, T, p, e, Et] = bc_enforcer(u, v, T, p, cv, R, uinf, pinf, Tinf)
     % Outlet
-    u(end,:) = 2*(u(end-2,:)) - u(end-1,:);
-    v(end,:) = 2*(v(end-2,:)) - v(end-1,:);
-    p(end,:) = 2*(p(end-2,:)) - p(end-1,:);
-    T(end,:) = 2*(T(end-2,:)) - T(end-1,:);
+    u(end,:) = 2*(u(end-1,:)) - u(end-2,:);
+    v(end,:) = 2*(v(end-1,:)) - v(end-2,:);
+    p(end,:) = 2*(p(end-1,:)) - p(end-2,:);
+    T(end,:) = 2*(T(end-1,:)) - T(end-2,:);
 
     % Bottom wall
     u(:, 1) = 0;
     v(:, 1) = 0;
     T(:, 1) = Tinf;
-    p(:, 1) = 2*(p(:,3)) - p(:,2);
+    p(:, 1) = 2*(p(:,2)) - p(:,3);
 
     % Leading edge
     u(1,1) = 0;

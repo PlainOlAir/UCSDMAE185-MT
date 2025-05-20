@@ -11,7 +11,7 @@ time = 0;
 output_vars = cell(1,7);
 convergence(:,:,1) = 1;
 %% --- Main Loop ---
-for step = 1:252
+for step = 1:step_total
     % I/O, loop updates, delta_t_CFL, visualization
     a = sqrt(gamma*R*T);
     if ~isreal(T)
