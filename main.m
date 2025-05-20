@@ -26,13 +26,13 @@ for step = 1:step_total
     mu = sutherland(T, mu0, T0, S1);
     k = (cp/Pr)*mu;
     % compute derivatives, update E, F
-    [E, F] = flux(U(:,:,step),dx,dy,FD_method_pred,R,cv,mu,k);
+    [E, F] = flux(U(:,:,:,step),dx,dy,FD_method_pred,R,cv,mu,k);
     % compute U_bar using U, E, F
-    U_bar = U(:,:,step) - dt.*(E + F);
+    U_bar = U(:,:,:,step) - dt*(E + F);
     % compute primitive var's from U_bar
     [rho_bar, u_bar, v_bar, T_bar, p_bar, e_bar, Et_bar] = cons2prim(U_bar, R, cv); 
     % enforce BC's on p, u,v, T (update rho, e,...)
-    [p, u, v, T, rho, e, Et] = bc_enforcer(p_bar, u_bar, v_bar, T_bar);
+    [p, u, v, T, rho, e, Et] = bc_enforcer(p_bar, u_bar, v_bar, T_bar, cv, R, uinf, p0, T0);
     U_bar = prim2cons(rho, u, v, T, cv);
 
     %% Corrector
@@ -42,11 +42,11 @@ for step = 1:step_total
     % compute derivatives, update E, F
     [E, F] = flux(U_bar,dx,dy,FD_method_corr, R, cv, mu, k);
     % compute U from primitive vars
-    U(:,:,step+1) = (0.5).*(U(:,:,step) + Ubar - dt.*(E + F));
+    U(:,:,:,step+1) = (0.5).*(U(:,:,step) + U_bar - dt.*(E + F));
     % compute primitive vars from U
     [rho, u, v, T, p, e, Et] = cons2prim(U(:,:,step), R, cv);
     % enforce BC's on p, u, v, T (update rho, e,...)
-    [p, u, v, T, rho, e, Et] = bc_enforcer(p,u,v,T);
+    [p, u, v, T, rho, e, Et] = bc_enforcer(p, u, v, T, cv, R, uinf, p0, T0);
     % compute U from primitive vars
     U(:,:,step+1) = prim2cons(rho,u,v,T,cv);
 end
@@ -84,8 +84,8 @@ end
 
 %% --- FUNCTIONS --- TODO: flux needs proper biasing in correctors
 function [E, F] = flux(U, dx, dy, FD_method, R, cv, mu, k) 
-    [nx, ny, ~] =  size(U);
-    [E, F] = deal(zeros(nx,ny,4));
+    [~, nx, ny, ~] =  size(U);
+    [E, F] = deal(zeros(4, nx,ny));
     [rho, u, v, T, p, ~, Et] = cons2prim(U, R, cv);
     if strcmpi(FD_method,'fwd') == 1 % predictor
         div_u = ddx_fwd(u,dx,1,true) + ddx_fwd(v,dy,2,true);
@@ -118,16 +118,16 @@ function [E, F] = flux(U, dx, dy, FD_method, R, cv, mu, k)
     else
         error("Invalid FD method given. Must be 'fwd', 'bwd', 'fwd_bias', 'bwd_bias'. ")
     end
-    E(:,:,1) = rho.*u;
-    E(:,:,2) = rho.*u.^2 + p - tau_xx;
-    E(:,:,3) = rho.*u.*v - tau_xy;
-    E(:,:,4) = (Et + p).*u - u.*tau_xx - v.*tau_xy + qx;
-    F(:,:,1) = rho.*v;
-    F(:,:,2) = rho.*u.*v - tau_xy;
-    F(:,:,3) = rho.*v.^2 + p - tau_yy;
-    F(:,:,4) = (Et + p).*v - v.*tau_yy - u.*tau_xy + qy;
+    E(1,:,:) = rho.*u;
+    E(2,:,:) = rho.*u.^2 + p - tau_xx;
+    E(3,:,:) = rho.*u.*v - tau_xy;
+    E(4,:,:) = (Et + p).*u - u.*tau_xx - v.*tau_xy + qx;
+    F(1,:,:) = rho.*v;
+    F(2,:,:) = rho.*u.*v - tau_xy;
+    F(3,:,:) = rho.*v.^2 + p - tau_yy;
+    F(4,:,:) = (Et + p).*v - v.*tau_yy - u.*tau_xy + qy;
 end
-function [p, u, v, T, rho, e, Et] = bc_enforcer(p, u, v, T, cv, R)
+function [p, u, v, T, rho, e, Et] = bc_enforcer(p, u, v, T, cv, R, uinf, p0, T0)
     % Bottom wall
     u(:, 1) = 0;
     v(:, 1) = 0;
@@ -145,7 +145,8 @@ function [p, u, v, T, rho, e, Et] = bc_enforcer(p, u, v, T, cv, R)
     p(:, end) = p0;
     T(:, end) = T0;
 
-    rho = p/(R*T);
-    e = cv*T;
+
+    rho = p./(R.*T);
+    e = cv.*T;
     Et = rho .* (e + (u.^2 + v.^2)./2);
 end
