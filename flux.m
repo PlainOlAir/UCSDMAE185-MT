@@ -14,14 +14,14 @@ function [E, F] = flux(FD_method, U, dx, dy, mu, k, R, cv)
         qy = -k .* ddx_fwd(T, dy, 2);
     elseif strcmpi(FD_method,'backward')
         div_u = ddx_bwd(u, dx, 1) + ddx_bwd(v, dy, 2);
-        tau_xyE = mu .* (ddx_bwd(u, dy, 2) + ddx_central(v, dx, 1));
-        tau_xyF = mu .* (ddx_central(u, dy, 2) + ddx_bwd(v, dx, 1));
+        tau_xyE = mu .* (ddx_central(u, dy, 2) + ddx_bwd(v, dx, 1));
+        tau_xyF = mu .* (ddx_bwd(u, dy, 2) + ddx_central(v, dx, 1));
         tau_xx = 2 .* mu .* (ddx_bwd(u, dx, 1) - (1/3) .* div_u);
         tau_yy = 2 .* mu .* (ddx_bwd(v, dy, 2) - (1/3) .* div_u);
         qx = -k .* ddx_bwd(T, dx, 1);
         qy = -k .* ddx_bwd(T, dy, 2);
     else
-        error("Invalid FD method given. Must be 'fwd', 'bwd', 'fwd_bias', 'bwd_bias'. ")
+        error("Invalid FD method given. Must be 'forward' or 'backward'. ")
     end
     
     E(1,:,:) = rho .* u;

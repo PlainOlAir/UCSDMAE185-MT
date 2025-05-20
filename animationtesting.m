@@ -1,5 +1,4 @@
 %% --- Animator --- TODO: verify functioning
-figure;
 tile = tiledlayout(2, 4, 'TileSpacing', 'compact', 'Padding', 'compact');
 % initialize handles
 axesArray = gobjects(1, 8);
@@ -19,7 +18,7 @@ for var = 1:7
         sprintf('%s at $t=%.11f$ s \\(%d/%d\\)', var_labels{var}, time(1), i, step_total),'Interpreter','latex');
 end
 % Animate over time
-for i = 2:50:step_total
+for i = 350
     for var = 1:7
         h(var).CData = squeeze(output_vars(var, :, :, i));
         titles(var).String = sprintf('%s at $t=%.11f$ s \\(%d/%d\\)', var_labels{var}, time(i), i, step_total);

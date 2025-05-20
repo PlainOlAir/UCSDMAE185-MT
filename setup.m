@@ -23,7 +23,7 @@ H = 8e-6;   % Height of computational domain (m)
 dx = L / nx;
 dy = H / ny;
 
-step_total = 1500;
+step_total = 500;
 
 [xx, yy] = ndgrid(linspace(0, L, nx), linspace(0, H, ny));
 
