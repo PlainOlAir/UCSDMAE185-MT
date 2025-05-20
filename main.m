@@ -16,6 +16,7 @@ for step = 1:step_total
     a = sqrt(gamma*R*T);
     % rho, u, v, e, p, T, convergence
     convergence = p_previous - p;
+    [rho, u, v, T, p, e, Et] = cons2prim(U(:,:,:,step), R, cv);
     output_vars(:, :, :, step) = permute(cat(3, rho, u, v, e, p, T, convergence), [3 1 2]);
     p_previous = p;
     % compute delta_t CFL
@@ -41,7 +42,6 @@ for step = 1:step_total
     % enforce BC's on p, u,v, T (update rho, e,...)
     [p, u, v, T, rho, e, Et] = bc_enforcer(p_bar, u_bar, v_bar, T_bar, cv, R, uinf, p0, T0);
     U_bar = prim2cons(rho, u, v, T, cv);
-
     %% Corrector
     % update mu, k
     mu = sutherland(T, mu0, T0, S1);
@@ -73,15 +73,14 @@ for var = 1:7
     axis(axesArray(var), 'equal', 'tight');
     xlabel(axesArray(var), '$x$', 'Interpreter','latex');
     ylabel(axesArray(var), '$y$', 'Interpreter','latex');
-    % colorbar(axesArray(var));
+    colorbar(axesArray(var));
     titles(var) = title(axesArray(var), ...
-        sprintf('%s at $t=%.3f$ s \\(%d/%d\\)', var_labels{var}, time(1), i, step_total),'Interpreter','latex');
+        sprintf('%s at $t=%.11f$ s \\(%d/%d\\)', var_labels{var}, time(1), i, step_total),'Interpreter','latex');
 end
-
 % Animate over time
-for i = 1:50:step_total
+for i = 2:50:step_total
     for var = 1:7
-        set(h(var), 'CData', squeeze(output_vars(var,:,:,1)));
+        set(h(var), 'CData', squeeze(output_vars(var,:,:,step)));
         titles(var).String = ...
             sprintf('%s at $t=%.11f$ s \\(%d/%d\\)', var_labels{var}, time(i), i, step_total);
     end
@@ -134,10 +133,17 @@ function [E, F] = flux(U, dx, dy, FD_method, R, cv, mu, k)
     F(4,:,:) = (Et + p).*v - v.*tau_yy - u.*tau_xy + qy;
 end
 function [p, u, v, T, rho, e, Et] = bc_enforcer(p, u, v, T, cv, R, uinf, p0, T0)
+    % Leading edge
+    u(1,1) = 0;
+    v(1,1) = 0;
+    p(1,1) = p0;
+    T(1,1) = T0;
+
     % Bottom wall
     u(:, 1) = 0;
     v(:, 1) = 0;
-    T(:, 1) = 0;
+    T(:, 1) = T0;
+    p(:, 1) = 2*(p(:,3)) - p(:,2);
     
     % Inlet
     u(1, :) = uinf;
@@ -150,7 +156,12 @@ function [p, u, v, T, rho, e, Et] = bc_enforcer(p, u, v, T, cv, R, uinf, p0, T0)
     v(:, end) = 0;
     p(:, end) = p0;
     T(:, end) = T0;
-
+    
+    % Outlet
+    u(end,:) = 2*(u(end-2,:)) - u(end-1,:);
+    v(end,:) = 2*(v(end-2,:)) - v(end-1,:);
+    p(end,:) = 2*(p(end-2,:)) - p(end-1,:);
+    T(end,:) = 2*(T(end-2,:)) - T(end-1,:);
 
     rho = p./(R.*T);
     e = cv.*T;
