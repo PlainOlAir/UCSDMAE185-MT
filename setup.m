@@ -28,7 +28,7 @@ step_total = 1500;
 [xx, yy] = ndgrid(linspace(0, L, nx), linspace(0, H, ny));
 
 %% Preallocation
-[u,v,p,rho,T,e,U_bar] = deal(zeros(nx, ny));
+[u,v,p,rho,T,e,UBar] = deal(zeros(nx, ny));
 U = zeros(4,nx,ny);
 % output variables are rho, u, v, e, p, T, convergence
 output_vars = zeros(7, nx,ny,step_total);
