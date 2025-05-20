@@ -8,18 +8,29 @@ setup
 dt = 2.35e-11; % Constant time step (s)
 time = 0;
 
-output_vars = zeros(7, nx, ny, step_total);
-
+output_vars = cell(1,7);
+convergence(:,:,1) = 1;
 %% --- Main Loop ---
 for step = 1:step_total
     % I/O, loop updates, delta_t_CFL, visualization
     a = sqrt(gamma*R*T);
 
     % rho, u, v, e, p, T, convergence
-    convergence_temp{step} = p_previous - p;
-    convergence = p_previous - p;
+    % convergence_temp{step} = p_previous - p;
+    convergence(:,:,step+1) = max(p_previous - p,[],'all');
     [rho, u, v, T, p, e, Et] = cons2prim(U, R, cv);
-    output_vars(:, :, :, step) = permute(cat(3, rho, u, v, e, p, T, convergence), [3 1 2]);
+    % output_vars{1:6} = permute(cat(3, rho, u, v, e, p, T), [3 1 2]);
+    new_vars = {rho, u, v, e, p, T, convergence};
+    for k = 1:6
+        if isempty(output_vars{k})
+            output_vars{k} = new_vars{k};
+        else
+            output_vars{k} = cat(3, output_vars{k}, new_vars{k});
+        end
+    end
+    output_vars{7} = convergence;
+    % output_vars = {cat(3,output_vars{1}, rho), u, v, e, p, T};
+    % output_vars{7} = convergence;
     p_previous = p;
     % compute delta_t CFL
     time(step+1) = time(step) + dt;
