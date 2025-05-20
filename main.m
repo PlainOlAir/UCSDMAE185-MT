@@ -22,15 +22,6 @@ for step = 1:step_total
     % compute delta_t CFL
     time(step+1) = time(step) + dt;
 
-    %% Alternator
-    if mod(step, 2) == 1
-        predMethod = 'forward';
-        corrMethod = 'backward';
-    else
-        predMethod = 'backward';
-        corrMethod = 'forward';
-    end
-
     %% Predictor
 
     % update mu, k
@@ -41,11 +32,11 @@ for step = 1:step_total
     if mod(step, 2) == 1
         [E, F] = flux('backward', U(:,:,:), dx, dy, mu, k, R, cv);
         Edx = ddx_fwd(E, dx);
-        Fdy = ddy_fwd(F, dy, 2);
+        Fdy = ddx_fwd(F, dy, 2);
     else
         [E, F] = flux('forward', U(:,:,:), dx, dy, mu, k, R, cv);
         Edx = ddx_bwd(E, dx);
-        Fdy = ddy_bwd(F, dy, 2);
+        Fdy = ddx_bwd(F, dy, 2);
     end
 
     % compute U_bar using U, E, F
@@ -68,11 +59,11 @@ for step = 1:step_total
     if mod(step, 2) == 1
         [EBar, FBar] = flux('forward', U(:,:,:), dx, dy, mu, k, R, cv);
         EBardx = ddx_bwd(EBar, dx);
-        FBardy = ddy_bwd(FBar, dy, 2);
+        FBardy = ddx_bwd(FBar, dy, 2);
     else
         [EBar, FBar] = flux('backward', U(:,:,:), dx, dy, mu, k, R, cv);
         EBardx = ddx_fwd(EBar, dx);
-        FBardy = ddy_fwd(FBar, dy, 2);
+        FBardy = ddx_fwd(FBar, dy, 2);
     end
 
     % compute U from primitive vars
