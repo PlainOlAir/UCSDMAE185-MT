@@ -24,11 +24,13 @@ dy = H / ny;
 
 step_total = 1500;
 
-[x, y] = ndgrid(linspace(0, L, nx), linspace(0, H, ny));
+[xx, yy] = ndgrid(linspace(0, L, nx), linspace(0, H, ny));
 
 %% Preallocation
 [u,v,p,rho,T,e,U_bar] = deal(zeros(nx, ny));
 U = zeros(4,nx,ny,step_total);
+% output variables are rho, u, v, e, p, T, convergence
+output_vars = zeros(7, nx,ny,step_total);
 
 %% Initial Conditions
 u(:, :) = uinf;
@@ -63,3 +65,4 @@ T(:, end) = T0;
 %   4 - total energy
 % set U(:,:,:,step 1) to BC's
 U(:,:,:,1) = prim2cons(rho,u,v,T,cv);
+p_previous = p;
