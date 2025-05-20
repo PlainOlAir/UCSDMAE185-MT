@@ -38,10 +38,18 @@ for step = 1:step_total
     k = (cp/Pr)*mu;
 
     % compute derivatives, update E, F
-    [E, F] = flux(predMethod, U(:,:,:), dx, dy, mu, k, R, cv);
+    if mod(step, 2) == 1
+        [E, F] = flux('backward', U(:,:,:), dx, dy, mu, k, R, cv);
+        Edx = ddx_fwd(E, dx);
+        Fdy = ddy_fwd(F, dy, 2);
+    else
+        [E, F] = flux('forward', U(:,:,:), dx, dy, mu, k, R, cv);
+        Edx = ddx_bwd(E, dx);
+        Fdy = ddy_bwd(F, dy, 2);
+    end
 
     % compute U_bar using U, E, F
-    UBar = U(:,:,:) - dt * (E + F);
+    UBar = U(:,:,:) - dt * (Edx + Fdy);
 
     % compute primitive var's from U_bar
     [rhoBar, uBar, vBar, TBar, pBar, eBar, EtBar] = cons2prim(UBar, R, cv); 
@@ -57,15 +65,28 @@ for step = 1:step_total
     kBar = (cp/Pr)*muBar;
 
     % compute derivatives, update E, F
-    [EBar, FBar] = flux(corrMethod, UBar, dx, dy, mu, k, R, cv);
+    if mod(step, 2) == 1
+        [EBar, FBar] = flux('forward', U(:,:,:), dx, dy, mu, k, R, cv);
+        EBardx = ddx_bwd(EBar, dx);
+        FBardy = ddy_bwd(FBar, dy, 2);
+    else
+        [EBar, FBar] = flux('backward', U(:,:,:), dx, dy, mu, k, R, cv);
+        EBardx = ddx_fwd(EBar, dx);
+        FBardy = ddy_fwd(FBar, dy, 2);
+    end
+
     % compute U from primitive vars
-    U(:,:,:,step+1) = (0.5).*(U(:,:,:,step) + UBar - dt.*(E + F));
+    U(:,:,:) = 0.5.*(U(:,:,:) + UBar - dt.*(EBardx + FBardy));
+
     % compute primitive vars from U
     [rho, u, v, T, p, e, Et] = cons2prim(U(:,:,:,step), R, cv);
+
     % enforce BC's on p, u, v, T (update rho, e,...)
-    [p, u, v, T, rho, e, Et] = bc_enforcer(p, u, v, T, cv, R, uinf, p0, T0);
+    [rho, u, v, T, p, e, Et] = bc_enforcer(u, v, T, p, cv, R, uinf, p0, T0);
+
     % compute U from primitive vars
-    U(:,:,:,step+1) = prim2cons(rho,u,v,T,cv);
+    U(:,:,:) = prim2cons(rho,u,v,T,cv);
+
 end
 
 % %% --- Animator --- TODO: verify functioning
