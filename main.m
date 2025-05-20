@@ -11,11 +11,12 @@ time = 0;
 output_vars = cell(1,7);
 convergence(:,:,1) = 1;
 %% --- Main Loop ---
-for step = 1:step_total
+for step = 1:252
     % I/O, loop updates, delta_t_CFL, visualization
     a = sqrt(gamma*R*T);
-    if isreal(p) == 0
+    if ~isreal(T)
         disp(step)
+        [row, col] = find(imag(T) ~= 0);
     end
     % rho, u, v, e, p, T, convergence
     % convergence_temp{step} = p_previous - p;
