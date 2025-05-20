@@ -9,12 +9,11 @@ gamma = 1.4;    % Ratio of specific heats
 mu0 = 1.735e-5;  % Dynamic viscosity (N-s/m^2)
 S1 = 110.4;     % Sutherland's temperature (K)
 Pr = 0.71;      % Prandtl number 
-
+M = 4;      % Mach Number
 a = sqrt(gamma * R * T0);
 uinf = a * M;
 
 %% Grid setup
-M = 4;      % Mach Number
 nx = 75;    % x Number of points
 ny = 80;    % y Number of points
 L = 1e-5;   % Length of computational domain (m)
