@@ -19,15 +19,19 @@ convergence = zeros(step_total+1, 4);
 for step = 1:step_total
     % I/O, loop updates, delta_t_CFL, visualization
 
-    % compute delta_t CFL
-    dt = 2.35e-11; % Constant time step (s)
-    time(step+1) = time(step) + dt;
-
     %%%%%% Predictor %%%%%%
 
     % update mu, k
     mu = sutherland(T);
     k = (cp/Pr)*mu;
+    
+    % compute delta_t CFL
+    a = sqrt(gamma .* R .* T);
+    vprime = max(4 / 3 .* u .* (k .* u ./ Pr) ./ rho, [], 'all');
+    dtCFL = min((abs(u)./dx + abs(v)./dy + a .* sqrt(1/(dx^2) + 1/(dy^2)) + 2 .* vprime .* (1/(dx^2) + 1/(dy^2))).^(-1), [], 'all');
+    dt = 2.35e-11; % Constant time step (s)
+    dt = dtCFL;
+    time(step+1) = time(step) + dt;
 
     % compute derivatives, update E, F
     if mod(step, 2) == 0
