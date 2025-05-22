@@ -27,12 +27,12 @@ for step = 1:step_total
     
     % compute delta_t CFL
     a = sqrt(gamma .* R .* T);
-    vprime = max(4 / 3 .* u .* (k .* u ./ Pr) ./ rho, [], 'all');
-    dtCFL = min((abs(u)./dx + abs(v)./dy + a .* sqrt(1/(dx^2) + 1/(dy^2)) + 2 .* vprime .* (1/(dx^2) + 1/(dy^2))).^(-1), [], 'all');
+    vprime = max(4 / 3 .* mu .* (k .* mu ./ Pr) ./ rho, [], 'all');
+    dtCFL = (abs(u)./dx + abs(v)./dy + a .* sqrt(1/(dx^2) + 1/(dy^2)) + 2 .* vprime .* (1/(dx^2) + 1/(dy^2))).^(-1);
     dt = 2.35e-11; % Constant time step (s)
-    dt = dtCFL;
     time(step+1) = time(step) + dt;
-
+    %dt = permute(repmat(dtCFL,[1 1 4]), [3 1 2]);
+    
     % compute derivatives, update E, F
     if mod(step, 2) == 0
         [E, F] = flux('backward', U, dx, dy, mu, k, R, cv);
@@ -45,7 +45,7 @@ for step = 1:step_total
     end
 
     % compute U_bar using U, E, F
-    UBar = U - dt * (Edx + Fdy);
+    UBar = U - dt .* (Edx + Fdy);
 
     % compute primitive var's from U_bar
     [rhoBar, uBar, vBar, TBar, pBar, eBar, EtBar] = cons2prim(UBar, R, cv);
@@ -91,7 +91,9 @@ for step = 1:step_total
     new_vars = {rho, u, v, e, p, T};
 
     for i = 1:4
-        convergence(step+1, i) = max(abs(U(i, :, :) - U_prev(i, :, :)) ./ (0.5 * (abs(U(i, :, :)) + abs(U_prev(i, :, :))) + eps), [], 'all');
+        % convergence(step+1, i) = max(abs(U(i, :, :) - U_prev(i, :, :)) ./ (0.5 * (abs(U(i, :, :)) + abs(U_prev(i, :, :))) + eps), [], 'all');
+        % convergence(step+1, i) = sqrt(mean((U(i,:,:) - U_prev(i,:,:)).^2, 'all'));
+        convergence(step+1, i) = sqrt(mean((U(i,:,:) - U_prev(i,:,:)).^2, 'all')) / max(abs(U(i,:,:)), [], 'all');
     end
 
     for k = 1:6

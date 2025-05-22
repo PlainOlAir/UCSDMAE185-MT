@@ -16,7 +16,7 @@ for var = 1:7
         axesArray(var) = nexttile(tile, var, [1 3]);
         % For convergence plot (line plot)
         for k = 1:4
-            convergenceh(k) = plot(axesArray(var), convergence_vals(1,k));
+            convergenceh(k) = semilogy(axesArray(var), convergence_vals(1,k));
             set(convergenceh(k), 'XDataSource', '1:i')
             set(convergenceh(k), 'YDataSource', 'convergence_vals(1:i,k)');
             hold on
@@ -38,11 +38,10 @@ for var = 1:7
         titles(var) = title(var_labels{var}, 'Interpreter', 'latex');
     end
     
-    tiletitle = title(tile, ...
-        sprintf('$t=%.4e$ s\n(%d/%d)', time(1), 1, step_total),'Interpreter','latex');
+    tiletitle = title(tile, sprintf('Step %d/%d', i, step_total));
 end
 
-for i = 1:10:step_total
+for i = 1:50:step_total
     for var = 1:7
         if var == 7
             for k = 1:4
@@ -63,7 +62,7 @@ for i = 1:10:step_total
             h(var).CData = output_frame;
         end
         % Update titles
-        tiletitle.String = sprintf('$t=%.3f$ ns (%d/%d)', time(i) * 1e9, i, step_total);
+        tiletitle.String = sprintf('Step %d/%d', i, step_total);
     end
     drawnow;
 end
