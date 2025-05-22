@@ -14,20 +14,22 @@ for var = 1:12
             axesArray(7) = nexttile(tile, 7);
             hold(axesArray(7), 'on');
             xlabel(axesArray(7), '$t$', 'Interpreter','latex');
-            ylabel(axesArray(7), '$Convergence$', 'Interpreter','latex');
+            ylabel(axesArray(7), '$log_{10}(Residual)$', 'Interpreter','latex');
             titles(7) = title(axesArray(7), ...
                 sprintf('Convergence Metrics at $t=%.4e$ s\n(%d/%d)', time(1), 1, step_total),'Interpreter','latex');
             
             % Initialize all 6 convergence lines
-            % colors = lines(6); % Get 6 distinct colors
+            colors = lines(6); % Get 6 distinct colors
+            h_conv = gobjects(6,1); % Preallocate graphics objects
+            
             for conv_var = 1:6
-                output_frame = squeeze(output_vars{6+conv_var}(:,:,1));
-                h_conv(conv_var) = semilogy(axesArray(7), time(1), output_frame, '-', ...
-                    'DisplayName', var_labels{conv_var});
-                set(h_conv(conv_var), 'XDataSource', 'time(1:i)');
-                set(h_conv(conv_var), 'YDataSource', ['squeeze(output_vars{' num2str(6+conv_var) '}(:,:,1:i))']);
+                output_data = squeeze(output_vars{6+conv_var}(:,:,1));
+                h_conv(conv_var) = semilogy(axesArray(7), time(1), output_data, '-', ...
+                    'Color', colors(conv_var,:), 'DisplayName', var_labels{conv_var});
             end
-            legend(axesArray(7), 'show');
+            legend(axesArray(7), 'show', 'Interpreter', 'latex');
+            set(axesArray(7), 'YScale', 'log'); % Ensure y-axis is logarithmic
+            grid(axesArray(7), 'on');
         end
     else
         % For field variables (pcolor plots)
@@ -50,9 +52,10 @@ for i = 1:50:step_total
             % Update convergence plot title only once
             if var == 7
                 titles(7).String = sprintf('Convergence Metrics at $t=%.4e$ s\n(%d/%d)', time(i), i, step_total);
-                % Refresh all convergence data
+                % Update all convergence lines
                 for conv_var = 1:6
-                    refreshdata(h_conv(conv_var), 'caller');
+                    output_data = squeeze(output_vars{6+conv_var}(:,:,1:i));
+                    set(h_conv(conv_var), 'XData', time(1:i), 'YData', output_data);
                 end
             end
         else
