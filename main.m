@@ -5,45 +5,34 @@ addpath('lib\')
 
 setup
 
-dt = 2.35e-11; % Constant time step (s)
 time = 0;
 
 output_vars = cell(1,7);
-convergence(:,:,1) = 1;
+for i = 1:6
+    output_vars{i} = zeros(nx, ny, step_total+1);
+    output_vars{i}(:, :, 1) = new_vars{i};
+end
+
+convergence = zeros(step_total+1, 4);
+
 %% --- Main Loop ---
 for step = 1:step_total
     % I/O, loop updates, delta_t_CFL, visualization
-    a = sqrt(gamma*R*T);
-    if ~isreal(T)
-        disp(step)
-        [row, col] = find(imag(T) ~= 0);
-    end
-    % rho, u, v, e, p, T, convergence
-    % convergence_temp{step} = p_previous - p;
-    convergence(:,:,step+1) = max(p_previous - p,[],'all');
-    [rho, u, v, T, p, e, Et] = cons2prim(U, R, cv);
-    % output_vars{1:6} = permute(cat(3, rho, u, v, e, p, T), [3 1 2]);
-    new_vars = {rho, u, v, e, p, T, convergence};
-    for k = 1:6
-        if isempty(output_vars{k})
-            output_vars{k} = new_vars{k};
-        else
-            output_vars{k}(:, :, step) = new_vars{k};
-        end
-    end
-    output_vars{7} = convergence;
-    % output_vars = {cat(3,output_vars{1}, rho), u, v, e, p, T};
-    % output_vars{7} = convergence;
-    p_previous = p;
-    % compute delta_t CFL
-    time(step+1) = time(step) + dt;
-    
-    %% Predictor    
+
+    %%%%%% Predictor %%%%%%
 
     % update mu, k
     mu = sutherland(T);
     k = (cp/Pr)*mu;
-
+    
+    % compute delta_t CFL
+    a = sqrt(gamma .* R .* T);
+    vprime = max(4 / 3 .* mu .* (k .* mu ./ Pr) ./ rho, [], 'all');
+    dtCFL = (abs(u)./dx + abs(v)./dy + a .* sqrt(1/(dx^2) + 1/(dy^2)) + 2 .* vprime .* (1/(dx^2) + 1/(dy^2))).^(-1);
+    dt = 2.35e-11; % Constant time step (s)
+    time(step+1) = time(step) + dt;
+    %dt = permute(repmat(dtCFL,[1 1 4]), [3 1 2]);
+    
     % compute derivatives, update E, F
     if mod(step, 2) == 0
         [E, F] = flux('backward', U, dx, dy, mu, k, R, cv);
@@ -56,18 +45,18 @@ for step = 1:step_total
     end
 
     % compute U_bar using U, E, F
-    UBar = U - dt * (Edx + Fdy);
+    UBar = U - dt .* (Edx + Fdy);
 
     % compute primitive var's from U_bar
-    [rhoBar, uBar, vBar, TBar, pBar, eBar, EtBar] = cons2prim(UBar, R, cv); 
+    [rhoBar, uBar, vBar, TBar, pBar, eBar, EtBar] = cons2prim(UBar, R, cv);
 
     % enforce BC's on p, u,v, T (update rho, e,...)
     [rhoBar, uBar, vBar, TBar, pBar, eBar, EtBar] = bc_enforcer(uBar, vBar, TBar, pBar, cv, R, uinf, pinf, Tinf);
 
     UBar = prim2cons(rhoBar, uBar, vBar, TBar, cv);
 
-    % Corrector
-    
+    %%%%% Corrector %%%%%
+
     % update mu, k
     muBar = sutherland(TBar);
     kBar = (cp/Pr)*muBar;
@@ -95,4 +84,21 @@ for step = 1:step_total
     % compute U from primitive vars
     U = prim2cons(rho,u,v,T,cv);
 
+    %%%%% Data Variables %%%%%%
+
+    [rho, u, v, T, p, e, Et] = cons2prim(U, R, cv);
+
+    new_vars = {rho, u, v, e, p, T};
+
+    for i = 1:4
+        % convergence(step+1, i) = max(abs(U(i, :, :) - U_prev(i, :, :)) ./ (0.5 * (abs(U(i, :, :)) + abs(U_prev(i, :, :))) + eps), [], 'all');
+        % convergence(step+1, i) = sqrt(mean((U(i,:,:) - U_prev(i,:,:)).^2, 'all'));
+        convergence(step+1, i) = sqrt(mean((U(i,:,:) - U_prev(i,:,:)).^2, 'all')) / max(abs(U(i,:,:)), [], 'all');
+    end
+
+    for k = 1:6
+        output_vars{k}(:, :, step) = new_vars{k};
+    end
+    U_prev = U;
 end
+output_vars{7} = convergence;

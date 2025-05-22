@@ -13,10 +13,13 @@ M = 4;                      % Mach Number
 
 a0 = sqrt(gamma * R * T0);  % Speed of Sound
 uinf = a0 * M;              % Free-stream velocity
-Tinf = T0 * (1 + (gamma - 1)/2 * M^2);                     % Static temperature
-pinf = p0 * (1 + (gamma - 1)/2 * M^2)^(gamma / (gamma - 1)); % Static pressure
+% Tinf = T0 * (1 + (gamma - 1)/2 * M^2);                     % Static temperature
+% pinf = p0 * (1 + (gamma - 1)/2 * M^2)^(gamma / (gamma - 1)); % Static pressure
+pinf = p0;
+Tinf = T0;
 
 %% Grid setup
+
 nx = 75;    % x Number of points
 ny = 80;    % y Number of points
 L = 1e-5;   % Length of computational domain (m)
@@ -51,4 +54,5 @@ T(:, :) = Tinf;
 %   4 - total energy
 % set U(:,:,:,step 1) to BC's
 U(:,:,:) = prim2cons(rho,u,v,T,cv);
-p_previous = p;
+new_vars = {rho, u, v, e, p, T};
+U_prev = U;

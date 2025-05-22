@@ -1,24 +1,32 @@
 %% --- Animator ---
-tile = tiledlayout(2, 4, 'TileSpacing', 'compact', 'Padding', 'compact');
+tile = tiledlayout(3, 3, 'TileSpacing', 'compact', 'Padding', 'compact');
+
 % initialize handles
-axesArray = gobjects(1, 8);
-h = gobjects(1, 8);
+axesArray = gobjects(1, 7);
+h = gobjects(1, 6);
+convergenceh = gobjects(1, 4);
 var_labels = {'$\rho$', '$u$', '$v$', '$e$', '$p$', '$T$', '$Convergence$'};
-titles = gobjects(1, 8);
-convergence_vals = abs(squeeze(output_vars{7}(:))); 
+titles = gobjects(1, 7);
+convergence_vals = output_vars{7}; 
 time = time(:);
 
 % initial plot for each variable
 for var = 1:7
-    axesArray(var) = nexttile(tile, var);
     if var == 7
+        axesArray(var) = nexttile(tile, var, [1 3]);
         % For convergence plot (line plot)
-        h(var) = plot(axesArray(var), time(1), convergence_vals(1), 'b-');
-        xlabel(axesArray(var), '$t$', 'Interpreter','latex');
+        for k = 1:4
+            convergenceh(k) = semilogy(axesArray(var), convergence_vals(1,k));
+            set(convergenceh(k), 'XDataSource', '1:i')
+            set(convergenceh(k), 'YDataSource', 'convergence_vals(1:i,k)');
+            hold on
+        end
+        hold off
+        xlabel(axesArray(var), '$step$', 'Interpreter','latex');
         ylabel(axesArray(var), '$Convergence$', 'Interpreter','latex');
-        set(h(var), 'XDataSource', 'time(1:i)');
-        set(h(var), 'YDataSource', 'convergence_vals(1:i)');
+        legend({'$\rho$', '$\rho u$', '$\rho v$', '$E_t$'}, 'Interpreter', 'latex')
     else
+        axesArray(var) = nexttile(tile, var);
         % For field variables (pcolor plots)
         output_frame = squeeze(output_vars{var}(:,:,1));
         h(var) = pcolor(axesArray(var), xx, yy, output_frame);
@@ -27,23 +35,25 @@ for var = 1:7
         xlabel(axesArray(var), '$x$', 'Interpreter','latex');
         ylabel(axesArray(var), '$y$', 'Interpreter','latex');
         colorbar(axesArray(var));
+        titles(var) = title(var_labels{var}, 'Interpreter', 'latex');
     end
     
-    titles(var) = title(axesArray(var), ...
-        sprintf('%s at $t=%.4e$ s\n(%d/%d)', var_labels{var}, time(1), 1, step_total),'Interpreter','latex');
+    tiletitle = title(tile, sprintf('Step %d/%d', i, step_total));
 end
 
 for i = 1:50:step_total
     for var = 1:7
         if var == 7
-            % Update convergence plot using refreshdata
-            refreshdata(h(var), 'caller');
-            % Adjust axes limits if needed
-            if i > 1
-                axesArray(var).XLim = [time(1), time(i)];
-                ylims = [min(convergence_vals(1:i)), max(convergence_vals(1:i))];
-                if ylims(1) ~= ylims(2)  % Only adjust if not constant
-                    axesArray(var).YLim = ylims;
+            for k = 1:4
+                % Update convergence plot using refreshdata
+                refreshdata(convergenceh(k), 'caller');
+                % Adjust axes limits if needed
+                if i > 1
+                    axesArray(var).XLim = [0, i];
+                    ylims = [min(convergence_vals(1:i,:), [], 'all'), max(convergence_vals(1:i, :), [], 'all')];
+                    if ylims(1) ~= ylims(2)  % Only adjust if not constant
+                        axesArray(var).YLim = ylims;
+                    end
                 end
             end
         else
@@ -52,7 +62,7 @@ for i = 1:50:step_total
             h(var).CData = output_frame;
         end
         % Update titles
-        titles(var).String = sprintf('%s at $t=%.4e$ s\n(%d/%d)', var_labels{var}, time(i), i, step_total);
+        tiletitle.String = sprintf('Step %d/%d', i, step_total);
     end
     drawnow;
 end

@@ -1,8 +1,5 @@
-length = sqrt((1e-5)^2 + (H)^2); 
-theta = asind(1/M)
-[x1,y1] = deal([0, 0]);
-x_end = length * cosd(theta);
-y_end = length * sind(theta);
+theta = asin(1/M);
+y_end = L * tan(theta);
 tile = tiledlayout(1, 1, 'TileSpacing', 'compact', 'Padding', 'compact');
 % initialize handles
 axesArray = gobjects(1, 1);
@@ -10,10 +7,10 @@ h = gobjects(1, 1);
 titles = gobjects(1, 1);
 for var = 1:1
     axesArray(var) = nexttile(tile, var);
-    output_frame = squeeze(output_vars{var}(:,:,step_total));
+    output_frame = squeeze(output_vars{3}(:,:,step_total));
     hold on
     h(var) = pcolor(axesArray(var), xx, yy, output_frame);
-    h2(var) = line(axesArray(var), [0 x_end], [0 y_end]);
+    h2(var) = line(axesArray(var), [0 L], [0 y_end]);
     hold off
     shading(axesArray(var), 'interp');
     axis(axesArray(var), 'equal', 'tight');
