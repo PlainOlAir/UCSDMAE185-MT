@@ -51,4 +51,5 @@ T(:, :) = Tinf;
 %   4 - total energy
 % set U(:,:,:,step 1) to BC's
 U(:,:,:) = prim2cons(rho,u,v,T,cv);
-p_previous = p;
+new_vars = {rho, u, v, e, p, T};
+U_prev = U;
