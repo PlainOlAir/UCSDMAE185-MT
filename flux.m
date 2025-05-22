@@ -20,6 +20,7 @@ function [E, F] = flux(FD_method, U, dx, dy, mu, k, R, cv)
         tau_yy = 2 .* mu .* (ddx_bwd(v, dy, 2) - (1/3) .* div_u);
         qx = -k .* ddx_bwd(T, dx, 1);
         qy = -k .* ddx_bwd(T, dy, 2);
+
     else
         error("Invalid FD method given. Must be 'forward' or 'backward'. ")
     end
@@ -33,4 +34,12 @@ function [E, F] = flux(FD_method, U, dx, dy, mu, k, R, cv)
     F(2,:,:) = rho .* u .* v - tau_xyF;
     F(3,:,:) = rho .* v .^ 2 + p - tau_yy;
     F(4,:,:) = (Et + p) .* v - v .* tau_yy - u .* tau_xyF + qy;
+
+    % E_adiabatic = (Et + p) .* u - u .* tau_xx - v .* tau_xyE;
+    % F_adiabatic = (Et + p) .* v - v .* tau_yy - u .* tau_xyF;
+    % E(4,2:end,1) = E_adiabatic(2:end,1);
+    % F(4,2:end,1) = F_adiabatic(2:end,1);
+    F(4,2:end,1) = (Et(2:end,1) + p(2:end,1)) .* v(2:end,1) - ...
+                   v(2:end,1) .* tau_yy(2:end,1) - ...
+                   u(2:end,1) .* tau_xyF(2:end,1);
 end

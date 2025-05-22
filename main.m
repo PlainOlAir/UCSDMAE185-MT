@@ -20,7 +20,11 @@ for step = 1:step_total
     % I/O, loop updates, delta_t_CFL, visualization
 
     %%%%%% Predictor %%%%%%
-
+    if ~isreal(T)
+        disp(step)
+        [row, col] = find(imag(T) ~= 0)
+        break
+    end
     % update mu, k
     mu = sutherland(T);
     k = (cp/Pr)*mu;
@@ -100,5 +104,8 @@ for step = 1:step_total
         output_vars{k}(:, :, step) = new_vars{k};
     end
     U_prev = U;
+    % if step == 1
+    %     disp(T)
+    % end
 end
 output_vars{7} = convergence;
