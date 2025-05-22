@@ -30,10 +30,15 @@ for step = 1:step_total
     k = (cp/Pr)*mu;
     
     % compute delta_t CFL
+    % a = sqrt(gamma .* R .* T);
+    % vprime = max(4 / 3 .* mu .* (k .* mu ./ Pr) ./ rho, [], 'all');
+    % dtCFL = (abs(u)./dx + abs(v)./dy + a .* sqrt(1/(dx^2) + 1/(dy^2)) + 2 .* vprime .* (1/(dx^2) + 1/(dy^2))).^(-1);
     a = sqrt(gamma .* R .* T);
-    vprime = max(4 / 3 .* mu .* (k .* mu ./ Pr) ./ rho, [], 'all');
-    dtCFL = (abs(u)./dx + abs(v)./dy + a .* sqrt(1/(dx^2) + 1/(dy^2)) + 2 .* vprime .* (1/(dx^2) + 1/(dy^2))).^(-1);
-    dt = 2.35e-11; % Constant time step (s)
+    vprime = max(4 / 3 .* mu ./ rho, [], 'all');  % Kinematic viscosity
+    dt_conv = min(0.5./(abs(u)/dx + abs(v)/dy + a*sqrt(1/dx^2 + 1/dy^2)), [], 'all');
+    dt_diff = min(0.5./(2*vprime*(1/dx^2 + 1/dy^2)), [], 'all');
+    dt = min(dt_conv, dt_diff);  % Use smaller of convective or diffusive limit
+    % dt = 2.35e-11; % Constant time step (s)
     time(step+1) = time(step) + dt;
     %dt = permute(repmat(dtCFL,[1 1 4]), [3 1 2]);
     
