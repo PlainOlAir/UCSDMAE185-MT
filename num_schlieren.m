@@ -13,3 +13,5 @@ xlabel('$x$', 'Interpreter','latex')
 ylabel('$y$', 'Interpreter','latex')
 title('Numerical Schlieren','Interpreter','latex')
 axis equal tight
+
+
