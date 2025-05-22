@@ -32,9 +32,9 @@ step_total = 1500;
 %% Preallocation
 [u,v,p,rho,T,e,UBar] = deal(zeros(nx, ny));
 U = zeros(4,nx,ny);
-% output variables are rho, u, v, e, p, T, convergence
-output_vars = zeros(7, nx,ny,step_total);
-
+% output variables are rho, u, v, e, p, T, and residuals for each
+output_vars = [repmat({zeros(nx,ny,step_total)},6,1); repmat({zeros(1,1,step_total)},6,1)];
+new_vars = [repmat({zeros(nx,ny)},6,1); repmat({zeros(1,1)},6,1)];
 %% Initial Conditions
 u(:, :) = uinf;
 v(:, :) = 0;
@@ -52,3 +52,4 @@ T(:, :) = Tinf;
 % set U(:,:,:,step 1) to BC's
 U(:,:,:) = prim2cons(rho,u,v,T,cv);
 p_previous = p;
+v_previous = v;

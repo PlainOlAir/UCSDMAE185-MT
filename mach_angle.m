@@ -10,7 +10,7 @@ h = gobjects(1, 1);
 titles = gobjects(1, 1);
 for var = 1:1
     axesArray(var) = nexttile(tile, var);
-    output_frame = squeeze(output_vars{var}(:,:,step_total));
+    output_frame = squeeze(output_vars{3}(:,:,step_total));
     hold on
     h(var) = pcolor(axesArray(var), xx, yy, output_frame);
     h2(var) = line(axesArray(var), [0 x_end], [0 y_end]);
@@ -22,6 +22,7 @@ for var = 1:1
     xlim(axesArray(var),[0 L])
     ylim(axesArray(var),[0 H])
     colorbar(axesArray(var));
+    % set(axesArray(var),'ColorScale','log')
     titles(var) = title(axesArray(var), ...
     sprintf('M = %d', M),'Interpreter','latex');
 end

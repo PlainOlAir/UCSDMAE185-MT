@@ -8,8 +8,6 @@ setup
 dt = 2.35e-11; % Constant time step (s)
 time = 0;
 
-output_vars = cell(1,7);
-convergence(:,:,1) = 1;
 %% --- Main Loop ---
 for step = 1:step_total
     % I/O, loop updates, delta_t_CFL, visualization
@@ -19,22 +17,23 @@ for step = 1:step_total
         [row, col] = find(imag(T) ~= 0);
     end
     % rho, u, v, e, p, T, convergence
-    % convergence_temp{step} = p_previous - p;
-    convergence(:,:,step+1) = max(p_previous - p,[],'all');
-    [rho, u, v, T, p, e, Et] = cons2prim(U, R, cv);
-    % output_vars{1:6} = permute(cat(3, rho, u, v, e, p, T), [3 1 2]);
-    new_vars = {rho, u, v, e, p, T, convergence};
+    % convergence(:,:,step+1) = norm(p - p_previous)/norm(p_previous);
+    % p_previous = p;
+    % convergence(:,:,step+1) = norm(v - v_previous)/norm(v_previous);
+    % v_previous = v;
+    % output_prev = {rho, u, v, T, p, e, Et};
     for k = 1:6
+        residuals(:,:,k) = norm(rho - new_vars{k})/norm(new_vars{k});
+    end
+    [rho, u, v, T, p, e, Et] = cons2prim(U, R, cv);
+    new_vars = {rho, u, v, e, p, T, (residuals(:,:,1)), residuals(:,:,2), residuals(:,:,3), residuals(:,:,4), residuals(:,:,5), residuals(:,:,6)};
+    for k = 1:12
         if isempty(output_vars{k})
             output_vars{k} = new_vars{k};
         else
-            output_vars{k}(:, :, step) = new_vars{k};
+            output_vars{k}(:, :, step) = new_vars{k}; %#ok<SAGROW>
         end
     end
-    output_vars{7} = convergence;
-    % output_vars = {cat(3,output_vars{1}, rho), u, v, e, p, T};
-    % output_vars{7} = convergence;
-    p_previous = p;
     % compute delta_t CFL
     time(step+1) = time(step) + dt;
     
