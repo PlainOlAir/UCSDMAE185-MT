@@ -14,7 +14,6 @@ time = time(:);
 for var = 1:7
     if var == 7
         axesArray(var) = nexttile(tile, var, [1 3]);
-        % For convergence plot (line plot)
         for k = 1:4
             convergenceh(k) = semilogy(axesArray(var), convergence_vals(1,k));
             set(convergenceh(k), 'XDataSource', '1:i')
@@ -27,7 +26,6 @@ for var = 1:7
         legend({'$\rho$', '$\rho u$', '$\rho v$', '$E_t$'}, 'Interpreter', 'latex')
     else
         axesArray(var) = nexttile(tile, var);
-        % For field variables (pcolor plots)
         output_frame = squeeze(output_vars{var}(:,:,1));
         h(var) = pcolor(axesArray(var), xx, yy, output_frame);
         shading(axesArray(var), 'interp');
@@ -37,31 +35,26 @@ for var = 1:7
         colorbar(axesArray(var));
         titles(var) = title(var_labels{var}, 'Interpreter', 'latex');
     end
-    
     tiletitle = title(tile, sprintf('Step %d/%d', i, step_total));
 end
-
+% draw plots at time stepping 50
 for i = 1:50:step_total
     for var = 1:7
         if var == 7
             for k = 1:4
-                % Update convergence plot using refreshdata
                 refreshdata(convergenceh(k), 'caller');
-                % Adjust axes limits if needed
                 if i > 1
                     axesArray(var).XLim = [0, i];
                     ylims = [min(convergence_vals(1:i,:), [], 'all'), max(convergence_vals(1:i, :), [], 'all')];
-                    if ylims(1) ~= ylims(2)  % Only adjust if not constant
+                    if ylims(1) ~= ylims(2)  
                         axesArray(var).YLim = ylims;
                     end
                 end
             end
         else
-            % Update field plots directly
             output_frame = squeeze(output_vars{var}(:,:,i));
             h(var).CData = output_frame;
         end
-        % Update titles
         tiletitle.String = sprintf('Step %d/%d', i, step_total);
     end
     drawnow;

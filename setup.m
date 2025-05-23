@@ -35,8 +35,6 @@ time = zeros(1,step_total);
 %   3 - y-mass flux
 %   4 - total energy
 U = zeros(4,nx,ny);
-% output variables are rho, u, v, e, p, T, convergence
-output_vars = zeros(7, nx,ny,step_total);
 
 %% Initial Conditions
 u(:, :) = uinf;
@@ -47,3 +45,11 @@ T(:, :) = Tinf;
 U(:,:,:) = prim2cons(rho,u,v,T,cv);
 new_vars = {rho, u, v, e, p, T};
 U_prev = U;
+convergence = zeros(step_total+1, 4);
+% output variables are rho, u, v, e, p, T, convergence
+output_vars = cell(1,7);
+for i = 1:6
+    output_vars{i} = zeros(nx, ny, step_total+1);
+    output_vars{i}(:, :, 1) = new_vars{i};
+end
+output_vars{7} = zeros(4,step_total);
