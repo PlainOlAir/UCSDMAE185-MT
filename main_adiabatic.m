@@ -44,11 +44,11 @@ for step = 1:step_total
     
     % compute derivatives, update E, F
     if mod(step, 2) == 0
-        [E, F] = flux('backward', U, dx, dy, mu, k, R, cv);
+        [E, F] = flux_adiabatic('backward', U, dx, dy, mu, k, R, cv);
         Edx = dxn_3d(@ddx_fwd, E, dx);
         Fdy = dxn_3d(@ddx_fwd, F, dy, 2);
     else
-        [E, F] = flux('forward', U, dx, dy, mu, k, R, cv);
+        [E, F] = flux_adiabatic('forward', U, dx, dy, mu, k, R, cv);
         Edx = dxn_3d(@ddx_bwd, E, dx);
         Fdy = dxn_3d(@ddx_bwd, F, dy, 2);
     end
@@ -60,7 +60,7 @@ for step = 1:step_total
     [rhoBar, uBar, vBar, TBar, pBar, eBar, EtBar] = cons2prim(UBar, R, cv);
 
     % enforce BC's on p, u,v, T (update rho, e,...)
-    [rhoBar, uBar, vBar, TBar, pBar, eBar, EtBar] = bc_enforcer(uBar, vBar, TBar, pBar, cv, R, uinf, pinf, Tinf);
+    [rhoBar, uBar, vBar, TBar, pBar, eBar, EtBar] = bc_enforcer_adiabatic(uBar, vBar, TBar, pBar, cv, R, uinf, pinf, Tinf);
 
     UBar = prim2cons(rhoBar, uBar, vBar, TBar, cv);
 
@@ -72,11 +72,11 @@ for step = 1:step_total
 
     % compute derivatives, update E, F
     if mod(step, 2) == 0
-        [EBar, FBar] = flux('forward', UBar, dx, dy, muBar, kBar, R, cv);
+        [EBar, FBar] = flux_adiabatic('forward', UBar, dx, dy, muBar, kBar, R, cv);
         EBardx = dxn_3d(@ddx_bwd, EBar, dx);
         FBardy = dxn_3d(@ddx_bwd, FBar, dy, 2);
     else
-        [EBar, FBar] = flux('backward', UBar, dx, dy, muBar, kBar, R, cv);
+        [EBar, FBar] = flux_adiabatic('backward', UBar, dx, dy, muBar, kBar, R, cv);
         EBardx = dxn_3d(@ddx_fwd, EBar, dx);
         FBardy = dxn_3d(@ddx_fwd, FBar, dy, 2);
     end
@@ -88,7 +88,7 @@ for step = 1:step_total
     [rho, u, v, T, p, e, Et] = cons2prim(U, R, cv);
 
     % enforce BC's on p, u, v, T (update rho, e,...)
-    [rho, u, v, T, p, e, Et] = bc_enforcer(u, v, T, p, cv, R, uinf, pinf, Tinf);
+    [rho, u, v, T, p, e, Et] = bc_enforcer_adiabatic(u, v, T, p, cv, R, uinf, pinf, Tinf);
 
     % compute U from primitive vars
     U = prim2cons(rho,u,v,T,cv);
@@ -114,3 +114,5 @@ for step = 1:step_total
     % end
 end
 output_vars{7} = convergence;
+
+save("adiabatic_output.mat","output_vars",'-mat')

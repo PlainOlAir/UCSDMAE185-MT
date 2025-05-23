@@ -13,8 +13,6 @@ M = 4;                      % Mach Number
 
 a0 = sqrt(gamma * R * T0);  % Speed of Sound
 uinf = a0 * M;              % Free-stream velocity
-% Tinf = T0 * (1 + (gamma - 1)/2 * M^2);                     % Static temperature
-% pinf = p0 * (1 + (gamma - 1)/2 * M^2)^(gamma / (gamma - 1)); % Static pressure
 pinf = p0;
 Tinf = T0;
 

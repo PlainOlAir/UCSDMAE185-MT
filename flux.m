@@ -32,10 +32,4 @@ function [E, F] = flux(FD_method, U, dx, dy, mu, k, R, cv)
     F(2,:,:) = rho .* u .* v - tau_xyF;
     F(3,:,:) = rho .* v.^2 + p - tau_yy;
     F(4,:,:) = (Et + p) .* v - v .* tau_yy - u .* tau_xyF + qy;
-
-    % Enforce adiabatic wall condition at bottom boundary (j=1)
-    qy(:,1) = 0;  % Zero heat flux at wall
-    F(4,2:end,1) = (Et(2:end,1) + p(2:end,1)) .* v(2:end,1) - ...
-                   v(2:end,1) .* tau_yy(2:end,1) - ...
-                   u(2:end,1) .* tau_xyF(2:end,1);
 end
