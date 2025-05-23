@@ -1,5 +1,5 @@
 function mu = sutherland(T, mu0, T0, S1)
-%% Description
+%% Description %%
 % Calculates dynamic viscoity using Sutherland's law (PRESET AIR)
 % Assumes calorically perfect gas
 
@@ -12,7 +12,7 @@ function mu = sutherland(T, mu0, T0, S1)
 % OUTPUTS
 % mu - dynamic viscosity with size Nx x Ny
 
-%% Setup
+%% Setup %%
     % process input variables
     switch nargin
         case 1
@@ -26,7 +26,7 @@ function mu = sutherland(T, mu0, T0, S1)
             S1 = 110.4; %K
     end
 
-%% Calculate
+%% Calculate %%
     % Sutherland's law
     mu = mu0 .* ((T ./ T0) .^ (3/2)) .* ((T0 + S1) ./ (T + S1));
 

@@ -1,5 +1,5 @@
-function [rho, u, v, T, p, e, Et] = cons2prim(U, R, cv)
-%% Description
+function [rho, u, v, T, p, e, Et] = cons2prim(U, R, cv, nx, ny)
+%% Description %%
 % Converts conservative variables into primitive variables
 % Assumes calorically perfect gas
 
@@ -7,6 +7,8 @@ function [rho, u, v, T, p, e, Et] = cons2prim(U, R, cv)
 % U = conservative varibles with size 4 x Nx x Ny
 % R = specific gas constant
 % cv = volumetric specific heat capacity
+% nx = number of rows in U (OPTIONAL BUT RECCOMENDED)
+% ny = number of columns in U (OPTIONAL BUT RECCOMENDED)
 
 % OUTPUTS
 % rho = density with size Nx x Ny
@@ -17,17 +19,26 @@ function [rho, u, v, T, p, e, Et] = cons2prim(U, R, cv)
 % e = internal energy with size Nx x Ny
 % Et = total energy with size Nx x Ny
 
-%% Calculate
-    % Separate values from conservative variable array
-    rho = squeeze(U(1, :, :));
-    u = squeeze(U(2, :, :)) ./ rho;
-    v = squeeze(U(3, :, :)) ./ rho;
-    Et = squeeze(U(4, :, :));
+%% Setup %%
 
-    e = squeeze(Et ./ rho - (u.^2 + v.^2) ./ 2); % internal energy
+% Process input variables
+if nargin == 3
+    [~, nx, ny] = size(U);
+end
 
-    T = squeeze(e ./ cv); % temperature
+%% Calculate %%
 
-    p = squeeze(rho .* R .* T); % pressure
+% Separate values from conservative variable array
+
+rho = reshape(U(1, :, :), [nx, ny]);        % Density
+u   = reshape(U(2, :, :), [nx, ny]) ./ rho; % X-velocity
+v   = reshape(U(3, :, :), [nx, ny]) ./ rho; % Y-velocity
+Et  = reshape(U(4, :, :), [nx, ny]);        % Total energy
+
+e   = Et ./ rho - (u.^2 + v.^2) ./ 2;       % Internal energy
+
+T   = e ./ cv;                              % Temperature
+
+p   = rho .* R .* T;                        % Pressure
 
 end
