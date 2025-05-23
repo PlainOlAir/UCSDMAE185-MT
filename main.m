@@ -32,11 +32,6 @@ maccormack
 % Animate solution
 animate
 
-%input('Display numerical schlieren? (y/n): ', 's')
-
-%input('Display Mach angle calculation? (y/n): ', 's')
-
-
 %% Notes %%
 % Reshaping is slightly faster than squeeze if size of array is known
 % because squeeze recalculates the size of the input array

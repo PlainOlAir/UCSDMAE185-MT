@@ -5,7 +5,7 @@
 %% Data & Animation
 step_total = 1500;                  % Maximum number of simulation steps
 
-animationstep = 10;                 % Steps between frames
+animationstep = 100;                 % Steps between frames
 animationwidth = 1280;              % Animation window width (pixels)
 animationheight = 720;              % Animation window height (pixels)
 animationexport = false;             % Set to true if export to gif
