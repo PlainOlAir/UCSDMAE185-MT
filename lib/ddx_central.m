@@ -1,5 +1,5 @@
 function firstdx = ddx_central(f, dx, dir, periodicBC)
-%% Description
+%% Description %%
 % Calculates first derivative with second-order central difference
 % in the x direction
 
@@ -12,7 +12,7 @@ function firstdx = ddx_central(f, dx, dir, periodicBC)
 % OUTPUTS
 % firstdx = central FD first order derivative of input matrix f
 
-%% Setup
+%% Setup %%
 % process input variables
 switch nargin
     case 2
@@ -30,7 +30,7 @@ end
 firstdx = zeros(nx, ny); %allocate memory to output data
 
 
-%% Calculate
+%% Calculate %%
 
 % calculate boundary conditions depending on boundary type
 if periodicBC %periodic boundary

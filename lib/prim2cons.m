@@ -1,5 +1,5 @@
 function U = prim2cons(rho, u, v, T, cv)
-%% Description
+%% Description %%
 % Converts primitive variables into conservative variables
 % Assumes calorically perfect gas
 
@@ -17,12 +17,12 @@ function U = prim2cons(rho, u, v, T, cv)
 %   3 - y-mass flux
 %   4 - total energy
 
-%% Setup
+%% Setup %%
     [nx, ny] = size(rho); % get size for U array
     U = zeros(4, nx, ny); % preallocate memory
 
-%% Calculate
-    e = cv .* T; % internal energy
+%% Calculate %%
+    e = cv .* T;                        % internal energy
     Et = rho .* (e + (u.^2 + v.^2)./2); % total energy
     
     % build U array
