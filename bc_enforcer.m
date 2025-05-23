@@ -62,4 +62,5 @@ T(1,1) = Tinf;
 rho = p./(R.*T);                    % Density
 e = cv.*T;                          % Internal energy
 Et = rho .* (e + (u.^2 + v.^2)./2); % Total energy
+
 end
