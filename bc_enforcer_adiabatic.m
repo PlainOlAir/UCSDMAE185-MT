@@ -1,4 +1,4 @@
-function [rho, u, v, T, p, e, Et] = bc_enforcer(u, v, T, p, cv, R, uinf, pinf, Tinf)
+function [rho, u, v, T, p, e, Et] = bc_enforcer_adiabatic(u, v, T, p, cv, R, uinf, pinf, Tinf)
     % Inlet (left boundary except corner)
     u(1, 2:end) = uinf;
     v(1, 2:end) = 0;
@@ -17,12 +17,12 @@ function [rho, u, v, T, p, e, Et] = bc_enforcer(u, v, T, p, cv, R, uinf, pinf, T
     p(end,:) = 2*p(end-1,:) - p(end-2,:);
     T(end,:) = 2*T(end-1,:) - T(end-2,:);
 
-    % Bottom wall (adiabatic)
-    u(2:end, 1) = 0;      
-    v(2:end, 1) = 0;      
+    % Bottom wall
+    u(2:end, 1) = 0;       % No-slip
+    v(2:end, 1) = 0;       % No penetration
     T(2:end,1) = 2*T(2:end,2) - T(2:end,3);
     p(2:end,1) = 2*p(2:end,2) - p(2:end,3);
-
+    
     % Leading edge (corner point)
     u(1,1) = 0;
     v(1,1) = 0;

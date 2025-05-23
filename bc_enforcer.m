@@ -17,16 +17,11 @@ function [rho, u, v, T, p, e, Et] = bc_enforcer(u, v, T, p, cv, R, uinf, pinf, T
     p(end,:) = 2*p(end-1,:) - p(end-2,:);
     T(end,:) = 2*T(end-1,:) - T(end-2,:);
 
-    % Bottom wall (adiabatic)
-    u(2:end, 1) = 0;       % No-slip
-    v(2:end, 1) = 0;       % No penetration
-    % Adiabatic wall condition (dT/dy = 0)
-    % T(2:end, 1) = T(2:end, 2);  % First-order approximation
-    T(2:end,1) = (4*T(2:end,2) - T(2:end,3))/3; % 2nd order
-    
-    % Pressure at wall from momentum equation normal to wall
-    p(2:end, 1) = p(2:end, 2);  % Simple approximation
-    % Or more accurate: p(2:end,1) = (4*p(2:end,2) - p(2:end,3))/3;
+    % Bottom wall
+    u(2:end, 1) = 0;      
+    v(2:end, 1) = 0;      
+    T(2:end,1) = Tinf;
+    p(2:end,1) = 2*p(2:end,2) - p(2:end,3);
 
     % Leading edge (corner point)
     u(1,1) = 0;

@@ -114,3 +114,4 @@ for step = 1:step_total
     % end
 end
 output_vars{7} = convergence;
+save("output.mat","output_vars",'-mat')
