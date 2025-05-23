@@ -17,21 +17,23 @@ pinf = p0;
 Tinf = T0;
 
 %% Grid setup
-
 nx = 75;    % x Number of points
 ny = 80;    % y Number of points
 L = 1e-5;   % Length of computational domain (m)
 H = 8e-6;   % Height of computational domain (m)
-
 dx = L / nx;
 dy = H / ny;
-
 step_total = 1500;
-
+time = zeros(1,step_total);
 [xx, yy] = ndgrid(linspace(0, L, nx), linspace(0, H, ny));
 
 %% Preallocation
 [u,v,p,rho,T,e,UBar] = deal(zeros(nx, ny));
+% U = 4 x Nx x Ny x step array of conservative variables:
+%   1 - density
+%   2 - x-mass flux
+%   3 - y-mass flux
+%   4 - total energy
 U = zeros(4,nx,ny);
 % output variables are rho, u, v, e, p, T, convergence
 output_vars = zeros(7, nx,ny,step_total);
@@ -41,16 +43,7 @@ u(:, :) = uinf;
 v(:, :) = 0;
 p(:, :) = pinf;
 T(:, :) = Tinf;
-
 [rho, u, v, T, p, e, Et] = bc_enforcer(u, v, T, p, cv, R, uinf, pinf, Tinf);
-
-% in general:
-% U = 4 x Nx x Ny x step array of conservative variables:
-%   1 - density
-%   2 - x-mass flux
-%   3 - y-mass flux
-%   4 - total energy
-% set U(:,:,:,step 1) to BC's
 U(:,:,:) = prim2cons(rho,u,v,T,cv);
 new_vars = {rho, u, v, e, p, T};
 U_prev = U;
